@@ -1,0 +1,84 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Masonry } from "@/components/ui/masonry";
+import { List, ListItem } from "@/components/ui/list";
+import { ChevronDown, Grid, List as ListIcon } from "lucide-react";
+
+const movies = [
+  { id: 1, title: "Inception", rating: 8.8, description: "A mind-bending thriller", genre: "Sci-Fi", poster: "https://via.placeholder.com/150" },
+  { id: 2, title: "Interstellar", rating: 8.6, description: "A space epic", genre: "Sci-Fi", poster: "https://via.placeholder.com/150" },
+  { id: 3, title: "The Dark Knight", rating: 9.0, description: "A legendary superhero film", genre: "Action", poster: "https://via.placeholder.com/150" },
+];
+
+export default function MovieCollection() {
+  const [view, setView] = useState("grid");
+  const [expanded, setExpanded] = useState(null);
+
+  return (
+    <div className="p-4">
+      <div className="flex justify-between mb-4">
+        <h2 className="text-xl font-bold">Movie Collection</h2>
+        <div className="flex gap-2">
+          <Button variant={view === "grid" ? "default" : "outline"} onClick={() => setView("grid")}>
+            <Grid className="w-4 h-4" />
+          </Button>
+          <Button variant={view === "list" ? "default" : "outline"} onClick={() => setView("list")}>
+            <ListIcon className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {view === "grid" ? (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-4"
+          >
+            {movies.map((movie) => (
+              <Card key={movie.id} className="overflow-hidden">
+                <CardContent>
+                  <img src={movie.poster} alt={movie.title} className="w-full h-auto rounded-lg" />
+                </CardContent>
+              </Card>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <List>
+              {movies.map((movie) => (
+                <ListItem key={movie.id} className="border-b py-2">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-semibold">{movie.title}</h3>
+                      <p className="text-sm text-gray-500">{movie.genre} | Rating: {movie.rating}</p>
+                    </div>
+                    <Button variant="ghost" onClick={() => setExpanded(expanded === movie.id ? null : movie.id)}>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${expanded === movie.id ? "rotate-180" : ""}`} />
+                    </Button>
+                  </div>
+                  <AnimatePresence>
+                    {expanded === movie.id && (
+                      <motion.p
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="mt-2 text-gray-700"
+                      >
+                        {movie.description}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </ListItem>
+              ))}
+            </List>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
